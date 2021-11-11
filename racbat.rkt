@@ -15,25 +15,41 @@
     (file->string "./dmi_data.json")
     (lambda () (read-json))))
 
-(define template-map
-  (file->string "./battler/template.map"))
-
 ;; Define army structures
 (struct unit (type count))
 (struct commander (type xp items magic))
 (struct army (commander units))
 
-;; Use data to fill army structures via interface
-()
-
-
-;; Template the data and write the output file
-
+;; Use data to make armies via interface
 ;; Interface
-(define @count (@ 0))
+(define @armies (@ '()))
+
+(define (add-army armies)
+  (cons (army #f '()) armies))
+
+(define (unit->string unit)
+  (string-append (number->string (unit-count unit))
+                 " "
+                 (unit-type unit)))
+
+(define (commander->string commander)
+  (commander-type commander))
+
+(define (army->string army)
+  (string-append "Commander: " (commander->string
+                                (army-commander army))
+                 "\n"
+                 "Units: " (map unit->string (army-units army))))
+
+
 (render
  (window
   (hpanel
-   (button "-" (λ () (@count . <~ . sub1)))
-   (text (@count . ~> . number->string))
-   (button "+" (λ () (@count . <~ . add1))))))
+   (button "Make Army" (λ () (@armies . <~ . add-army)))
+   (text (@armies . ~> . (lambda (armies)
+                           (map army->string armies)))))))
+
+;; Template the data and write the output file
+
+(define template-map
+  (file->string "./battler/template.map"))
