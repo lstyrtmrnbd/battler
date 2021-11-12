@@ -17,8 +17,8 @@
 
 ;; Define army structures
 (struct unit (type count))
-(struct commander (type xp items magic))
-(struct army (commander units))
+(struct commander (type xp units items magic))
+(struct army (nation commanders))
 
 ;; Use data to make armies via interface
 (define @armies (@ '()))
