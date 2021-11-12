@@ -21,7 +21,6 @@
 (struct army (commander units))
 
 ;; Use data to make armies via interface
-;; Interface
 (define @armies (@ '()))
 
 (define (add-army armies)
@@ -41,7 +40,7 @@
                  "\n"
                  "Units: " (map unit->string (army-units army))))
 
-
+;; Interface
 (render
  (window
   (hpanel
