@@ -109,6 +109,9 @@
 (struct commander (type xp units items magic))
 (struct army (nation commanders))
 
+(define (set-nation input nation)
+  (army nation (army-commanders input)))
+
 ;; Use data to make armies via interface
 (define (unit->string unit)
   (string-append (number->string (unit-count unit))
@@ -129,28 +132,28 @@
                          (map unit->string (commander-units commander))))
         (army-commanders army))))
 
+(define @green-army (@ (army "Shinuyama" '())))
+(define @blue-army (@ (army "Asphodel" '())))
 
-
-(define @current-nation (@ "Shinuyama"))
-(define @armies (@ '()))
-
-(define (add-army armies)
-  (cons (army (obs-peek @current-nation)
-              '())
-        armies))
+(define (army-view @army header)
+  (vpanel
+   (text header)
+   (choice (hash-keys nations)
+           (lambda (selection)
+             (<~ @army
+                 (lambda (army)
+                   (set-nation army selection)))))
+   (text (~> @army army->string))))
 
 ;; Interface
-(render
- (window
-  (hpanel
-   (vpanel
-    (choice (hash-keys nations)
-            (lambda (selection) (:= @current-nation selection)))
-    (button "Make Army" (λ () (<~ @armies add-army))))
-   (text (~> @armies
-             (lambda (armies)
-               (string-append* ""
-                               (map army->string armies))))))))
+(define (show)
+  (render
+   (window
+    (hpanel
+     (army-view @green-army "Green Team")
+     (army-view @blue-army "Blue Team")))))
+
+(show)
 
 ;; Template the data and write the output file
 
