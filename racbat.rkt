@@ -5,6 +5,7 @@
 
 (require racket/port
          racket/file
+         racket/string
          racket/gui/easy
          racket/gui/easy/operator
          json)
@@ -21,10 +22,8 @@
 (struct army (nation commanders))
 
 ;; Use data to make armies via interface
-(define @armies (@ '()))
-
 (define (add-army armies)
-  (cons (army #f '()) armies))
+  (cons armies (army )))
 
 (define (unit->string unit)
   (string-append (number->string (unit-count unit))
@@ -35,10 +34,18 @@
   (commander-type commander))
 
 (define (army->string army)
-  (string-append "Commander: " (commander->string
-                                (army-commander army))
-                 "\n"
-                 "Units: " (map unit->string (army-units army))))
+  (string-append*
+   "Nation: " (army-nation army) "\n"
+   (map (lambda (commander)
+          (string-append "Commander: "
+                         (commander->string commander)
+                         "\n"
+                         "Units: "
+                         (map unit->string (commander-units commander))))
+        (army-commanders army))))
+
+(define @armies (@ '()))
+
 
 ;; Interface
 (render
@@ -46,7 +53,8 @@
   (hpanel
    (button "Make Army" (λ () (@armies . <~ . add-army)))
    (text (@armies . ~> . (lambda (armies)
-                           (map army->string armies)))))))
+                           (string-append* ""
+                                           (map army->string armies))))))))
 
 ;; Template the data and write the output file
 
