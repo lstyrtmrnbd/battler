@@ -22,9 +22,6 @@
 (struct army (nation commanders))
 
 ;; Use data to make armies via interface
-(define (add-army armies)
-  (cons armies (army )))
-
 (define (unit->string unit)
   (string-append (number->string (unit-count unit))
                  " "
@@ -44,17 +41,28 @@
                          (map unit->string (commander-units commander))))
         (army-commanders army))))
 
+
+
+(define @current-nation (@ "Shinuyama"))
 (define @armies (@ '()))
 
+(define (add-army armies)
+  (cons (army (obs-peek @current-nation)
+              '())
+        armies))
 
 ;; Interface
 (render
  (window
   (hpanel
-   (button "Make Army" (λ () (@armies . <~ . add-army)))
-   (text (@armies . ~> . (lambda (armies)
-                           (string-append* ""
-                                           (map army->string armies))))))))
+   (vpanel
+    (choice '("Shinuyama" "Arcocephale")
+            (lambda (selection) (:= @current-nation selection)))
+    (button "Make Army" (λ () (<~ @armies add-army))))
+   (text (~> @armies
+             (lambda (armies)
+               (string-append* ""
+                               (map army->string armies))))))))
 
 ;; Template the data and write the output file
 
