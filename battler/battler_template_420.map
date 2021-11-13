@@ -16,6 +16,8 @@
 #description "Set Em Up, Knock Em Down"
 #scenario
 
+#nohomelandnames
+
 $$$template-marker$$$
 
 -- this stuff is important lol
