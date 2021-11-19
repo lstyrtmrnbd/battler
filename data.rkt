@@ -6,6 +6,7 @@
 
 (provide dmi-info
          template-map
+         units
          nations)
 
 ;; Read the data
@@ -13,6 +14,14 @@
   (with-input-from-string
     (file->string "./dmi_data.json")
     (lambda () (read-json))))
+
+(define units
+  ; Structure units into a nice name-id dictionary
+  (make-immutable-hash
+   (hash-map (hash-ref dmi-info 'units)
+             (lambda (key val)
+               (cons (hash-ref val 'name)
+                     (hash-ref val 'id))))))
 
 (define template-map
   (file->string "./battler/template.map"))

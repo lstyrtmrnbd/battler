@@ -1,19 +1,19 @@
 #lang racket/base
 
 ; battler
-; now in a decent environment
+; now in a decent environment,
+; electron deez
 
-(require racket/class
-         racket/string
+(require racket/string
          racket/snip
          racket/gui/easy
          racket/gui/easy/operator
          "data.rkt")
 
-;; Define army structures
-(struct unit (type count))
-(struct commander (type xp units items magic))
+; an army is a nation and its commanders
 (struct army (nation commanders))
+(struct commander (type xp units items magic))
+(struct unit (type count))
 
 (define (set-nation input-army nation)
   (army nation (army-commanders input-army)))
@@ -21,7 +21,7 @@
 (define (add-commander input-army cmdr)
   (army (army-nation) (cons cmdr (army-commanders input-army))))
 
-;; Use data to make armies via interface
+; output armies for display
 (define (unit->string unit)
   (string-append (number->string (unit-count unit))
                  " "
@@ -41,6 +41,27 @@
                          (map unit->string (commander-units commander))))
         (army-commanders army))))
 
+; the GUI
+(define (find-content regx content-list)
+  (findf (lambda (elt)
+           (regexp-match regx elt))
+         content-list))
+
+(define (input-box content-list)
+  (let [(@selected (@ "Your unit sir"))]
+    (vpanel
+     (text @selected)
+     (input ""
+            (lambda (action str) ;str is the contents
+              (<~ @selected
+                  (lambda (val)
+                    (or (find-content (regexp str)
+                                      content-list)
+                        ""))))
+            #:label "yeh"
+            ;#:value=? eq?
+            ))))
+
 (define (army-view @army header)
   (vpanel
    (text header)
@@ -50,14 +71,12 @@
                  (lambda (army)
                    (set-nation army selection)))))
    (text (~> @army army->string))
-   (snip "" (lambda (in h v)
-              (new snip%))
-         #:style '(combo))))
+   (input-box (hash-keys units))))
 
 (define @green-army (@ (army "Shinuyama" '())))
 (define @blue-army (@ (army "Asphodel" '())))
 
-;; Interface
+; render interface
 (define (show)
   (render
    (window #:title "battler"
