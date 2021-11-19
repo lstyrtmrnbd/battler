@@ -47,20 +47,17 @@
            (regexp-match regx elt))
          content-list))
 
-(define (input-box content-list)
-  (let [(@selected (@ "Your unit sir"))]
+(define (input-box content-list init)
+  (let [(@selected (@ init))]
     (vpanel
      (text @selected)
      (input ""
-            (lambda (action str) ;str is the contents
+            (lambda (action contents)
               (<~ @selected
                   (lambda (val)
-                    (or (find-content (regexp str)
+                    (or (find-content (regexp contents)
                                       content-list)
-                        ""))))
-            #:label "yeh"
-            ;#:value=? eq?
-            ))))
+                        "not found"))))))))
 
 (define (army-view @army header)
   (vpanel
@@ -71,7 +68,11 @@
                  (lambda (army)
                    (set-nation army selection)))))
    (text (~> @army army->string))
-   (input-box (hash-keys units))))
+   (hpanel
+    (input-box (hash-keys units)
+               "Search units")
+    (input-box (hash-keys commanders)
+               "Search commanders"))))
 
 (define @green-army (@ (army "Shinuyama" '())))
 (define @blue-army (@ (army "Asphodel" '())))

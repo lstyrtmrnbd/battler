@@ -7,7 +7,8 @@
 (provide dmi-info
          template-map
          units
-         nations)
+         nations
+         commanders)
 
 ;; Read the data
 (define dmi-info
@@ -15,13 +16,18 @@
     (file->string "./dmi_data.json")
     (lambda () (read-json))))
 
-(define units
-  ; Structure units into a nice name-id dictionary
+(define (restructure-hash hash)
+  "Re-structure the json hash into a nice name-id dictionary"
   (make-immutable-hash
-   (hash-map (hash-ref dmi-info 'units)
+   (hash-map hash
              (lambda (key val)
                (cons (hash-ref val 'name)
                      (hash-ref val 'id))))))
+
+(define units
+  (restructure-hash (hash-ref dmi-info 'units)))
+(define commanders
+  (restructure-hash (hash-ref dmi-info 'cmdrs)))
 
 (define template-map
   (file->string "./battler/template.map"))
@@ -119,8 +125,3 @@
   (make-immutable-hash
    (hash-map hash
              (lambda (key val) `(,val . ,key)))))
-
-(define (to-symbol in)
-  "What in the hell"
-  (cond [(string? in) (string->symbol)]
-        [(number? in) (string->symbol (number->string in))]))
