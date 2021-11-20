@@ -43,21 +43,34 @@
 
 ; the GUI
 (define (find-content regx content-list)
+  "Finds a regx match in a list"
   (findf (lambda (elt)
            (regexp-match regx elt))
          content-list))
 
-(define (input-box content-list init)
-  (let [(@selected (@ init))]
-    (vpanel
-     (text @selected)
+(define (input-selection-box content-list @selector)
+  "Lets you select something by searching within the content list"
+  (vpanel
+   (text @selector)
+   (input ""
+          (lambda (action contents)
+            (<~ @selector
+                (lambda (val)
+                  (or (find-content (regexp contents)
+                                    content-list)
+                      "not found")))))))
+
+(define (unit-selection-contrivance unit-list add-unit)
+  (let [(@selected (@ "Search units"))
+        (count 0)]
+    (hpanel
+     (input-selection-box unit-list @selected)
      (input ""
             (lambda (action contents)
-              (<~ @selected
-                  (lambda (val)
-                    (or (find-content (regexp contents)
-                                      content-list)
-                        "not found"))))))))
+              (set! count (string->number contents))))
+     (button "Add"
+             (lambda ()
+               (add-unit (obs-peek @selected) count))))))
 
 (define (army-view @army header)
   (vpanel
@@ -68,11 +81,11 @@
                  (lambda (army)
                    (set-nation army selection)))))
    (text (~> @army army->string))
-   (hpanel
-    (input-box (hash-keys units)
-               "Search units")
-    (input-box (hash-keys commanders)
-               "Search commanders"))))
+   (vpanel
+    (input-selection-box (hash-keys commanders)
+                         "Search commanders")
+    (unit-selection-contrivance (hash-keys units)
+                                (lambda (unit count) (display "hi"))))))
 
 (define @green-army (@ (army "Shinuyama" '())))
 (define @blue-army (@ (army "Asphodel" '())))
